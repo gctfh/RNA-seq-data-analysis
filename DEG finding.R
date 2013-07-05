@@ -1,7 +1,7 @@
 #
 # Pre-processing Data
 #
-exprData <- read.delim("~/Yun_Codes/DEG/CaseStudy/pnas_expression.txt")
+#exprData <- read.delim("pnas_expression.txt")
 # remove final "len"
 exprData <- exprData[,-9]
 row.names(exprData)<-exprData$ensembl_ID
