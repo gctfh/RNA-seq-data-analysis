@@ -1,7 +1,8 @@
+setwd ("filedirectory")
 #
 # Pre-processing Data
 #
-#exprData <- read.delim("pnas_expression.txt")
+exprData <- read.delim("filename.txt")
 # remove final "len"
 exprData <- exprData[,-9]
 row.names(exprData)<-exprData$ensembl_ID
@@ -9,13 +10,13 @@ exprData<-exprData[,-1]
 # store gene with valid expression data under ≥ 1 conditions
 atLeastOne<-apply(exprData,1,function(row) any (row!=0))
 exprData.fil<-exprData[atLeastOne,]
-colnames(exprData.fil)<-c(paste("Control",1:4,sep="_"),paste("DHT",1:3,sep="_"))
-
+colnames(exprData.fil)<-c(paste("Control",1:3,sep="_"),paste("DHT",1:3,sep="_"))
+ 
 #
 # Basic
 #
-exprData.fil$ControlMean<-apply(exprData.fil,1,function(x){mean(x[1:4])})
-exprData.fil$DHTMean<-apply(exprData.fil,1,function(x){mean(x[5:7])})
+exprData.fil$ControlMean<-apply(exprData.fil,1,function(x){mean(x[1:3])})
+exprData.fil$DHTMean<-apply(exprData.fil,1,function(x){mean(x[4:6])})
 effect<-log2(exprData.fil$DHTMean/exprData.fil$ControlMean)
 exprData.fil$Effect<-effect
 # t.test cannot operate when
@@ -26,13 +27,13 @@ my.t.test.p.value<-function(...) {
   obj<-try(t.test(...), silent=TRUE)
   if (is(obj, "try-error")) return(NA) else return(obj$p.value)
 }
-#effect.sig<-apply(exprData.fil,1,function(row)my.t.test.p.value(row[1:4],row[5:7]))
+#effect.sig<-apply(exprData.fil,1,function(row)my.t.test.p.value(row[1:3],row[4:6]))
 #
 # solution 2
-effect.sig<-apply(exprData.fil,1,function(row)tryCatch(t.test(row[1:4],row[5:7])$p.value,error=function(row) NA))
+effect.sig<-apply(exprData.fil,1,function(row)tryCatch(t.test(row[1:3],row[4:6])$p.value,error=function(row) NA))
 #
 #wilcox.test is another statistical test
-#effect.sig<-apply(exprData.fil,1,function(row)wilcox.test(row[1:4],row[5:7])$p.value)
+#effect.sig<-apply(exprData.fil,1,function(row)wilcox.test(row[1:3],row[4:6])$p.value)
 exprData.fil$Effect.sig<- (-log10(effect.sig))
 exprData.fil$Mean<- log2(exprData.fil$ControlMean * exprData.fil$DHTMean)/2
 #
